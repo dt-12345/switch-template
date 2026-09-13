@@ -23,15 +23,15 @@ add_executable(example_static_relro main.cpp)
 build_nxo(example_static_relro nso ENABLE_RELRO)
 
 # this is suitable for any module other than the main module of a program
-add_executable(example_shared_no_relro main.cpp)
+add_library(example_shared_no_relro SHARED main.cpp)
 build_nxo(example_shared_no_relro nso SHARED_LIBRARY)
-add_executable(example_shared_relro main.cpp)
+add_library(example_shared_relro SHARED main.cpp)
 build_nxo(example_shared_relro nso SHARED_LIBRARY ENABLE_RELRO)
 
 # NRO example
-add_executable(example_shared_relro_nro main.cpp)
+add_library(example_shared_relro_nro SHARED main.cpp)
 build_nxo(example_shared_relro_nro nro SHARED_LIBRARY ENABLE_RELRO HEADER_SECTION)
 
 # Older NRO example
-add_executable(example_shared_nro main.cpp)
+add_library(example_shared_nro SHARED main.cpp)
 build_nxo(example_shared_nro nro SHARED_LIBRARY SDK_VERSION 1.0.0)

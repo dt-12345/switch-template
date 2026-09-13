@@ -1,5 +1,5 @@
     .section ".nx_debuglink", "a", %progbits
 
-    .word 0
-    .word @MODULE_NAME_LENGTH@
-    .ascii "@MODULE_NAME@"
+    .word   0
+    .word   @MODULE_NAME_LENGTH@
+    .ascii  "@MODULE_NAME@"
