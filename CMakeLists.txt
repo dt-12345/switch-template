@@ -31,3 +31,7 @@ build_nxo(example_shared_relro nso SHARED_LIBRARY ENABLE_RELRO)
 # NRO example
 add_executable(example_shared_relro_nro main.cpp)
 build_nxo(example_shared_relro_nro nro SHARED_LIBRARY ENABLE_RELRO HEADER_SECTION)
+
+# Older NRO example
+add_executable(example_shared_nro main.cpp)
+build_nxo(example_shared_nro nro SHARED_LIBRARY SDK_VERSION 1.0.0)

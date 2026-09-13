@@ -24,11 +24,14 @@
     .hidden _ZN2nn5rocrt10g_RoModuleE
     .global __rocrt
     .hidden __rocrt
+#if NN_SDK_VERSION_MAJOR >= 17
     .global __rocrt_ver
     .hidden __rocrt_ver
+#endif
     .global __rocrt_init
     .hidden __rocrt_init
 __rocrt_init:
+#if NN_SDK_VERSION_MAJOR >= 17
 1:  .word   1
     .word   __rocrt - 1b
     .word   __rocrt_ver - 1b
@@ -41,6 +44,10 @@ __rocrt_initro:
 1:  .word   1
     .word   __rocrt - 1b
     .word   __rocrt_ver - 1b
+#else
+1.  .word   0
+    .word   __rocrt - 1b
+#endif
 
     .section ".rocrt.info", "a"
     .align  2
@@ -52,6 +59,7 @@ __rocrt:
     .word   __eh_frame_hdr_start - __rocrt
     .word   __eh_frame_hdr_end - __rocrt
     .word   _ZN2nn5rocrt10g_RoModuleE - __rocrt
+#if NN_SDK_VERSION_MAJOR >= 17
     .word   __relro_start - __rocrt
     .word   __full_relro_end - __rocrt
     .word   __nx_debuglink_start - __rocrt
@@ -62,6 +70,7 @@ __rocrt_ver:
     .word   NN_SDK_VERSION_MAJOR
     .word   NN_SDK_VERSION_MINOR
     .word   NN_SDK_VERSION_MICRO
+#endif
 
     .section ".bss"
     .balign  NN_ROCRT_ROMODULE_ALIGN
@@ -71,7 +80,9 @@ _ZN2nn5rocrt10g_RoModuleE:
     .addrsig
     .addrsig_sym __rocrt_init // アドレスが固定のため
     .addrsig_sym __rocrt
+#if NN_SDK_VERSION_MAJOR >= 17
     .addrsig_sym __rocrt_ver
+#endif
     .addrsig_sym _DYNAMIC
     .addrsig_sym __bss_start
     .addrsig_sym __bss_end
