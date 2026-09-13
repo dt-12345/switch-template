@@ -1,0 +1,5 @@
+build*/*
+.cache/*
+
+elf2nro
+elf2nso

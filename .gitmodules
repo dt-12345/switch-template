@@ -1,0 +1,3 @@
+[submodule "sysroot/musl"]
+	path = sysroot/musl
+	url = https://github.com/open-ead/botw-lib-musl.git
