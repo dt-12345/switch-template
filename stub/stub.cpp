@@ -28,6 +28,16 @@ extern "C"
     {
         return 2;
     }
+
+    __attribute__((visibility("default")))
+    void __nnmusl_fini_dso(unsigned char *EX_start, unsigned char *EX_end,
+                            unsigned char *tdata_start, unsigned char *tdata_end,
+                            unsigned char *tbss_start, unsigned char *tbss_end);
+    
+    __attribute__((visibility("default"), weak))
+    void __nnmusl_fini_dso(unsigned char *EX_start, unsigned char *EX_end,
+                            unsigned char *tdata_start, unsigned char *tdata_end,
+                            unsigned char *tbss_start, unsigned char *tbss_end) {}
 }
 
 namespace nn { namespace ro {

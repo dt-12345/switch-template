@@ -14,8 +14,6 @@
   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *--------------------------------------------------------------------------------*/
 
-#include "rocrt.AssemblyOffset.h"
-
     .section ".rocrt.init", "ax"
     .align  2
     .hidden __bss_start

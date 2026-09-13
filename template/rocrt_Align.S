@@ -14,8 +14,6 @@
   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *--------------------------------------------------------------------------------*/
 
-#include "rocrt.AssemblyOffset.h"
-
     .section ".rocrt.align.relroend", "aw", %progbits
     .balign NN_ROCRT_SEGMENT_ALIGN
     .section ".rocrt.align.bssend", "aw", %nobits
