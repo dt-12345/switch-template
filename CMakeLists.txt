@@ -2,12 +2,14 @@ cmake_minimum_required(VERSION 3.13)
 
 project(example C CXX ASM)
 
-include(cmake/nxo.cmake)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+include(cmake/nxo.cmake)
+
+set(NXO_TOOLS_DIR "tools/") # override tools directory if desired
 
 # build_nxo(<target> <nxo_type>
 #           [SDK_VERSION <target_sdk_version>]

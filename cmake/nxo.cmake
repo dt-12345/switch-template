@@ -4,6 +4,16 @@ set(CMAKE_SHARED_LIBRARY_SUFFIX ".nss")
 
 set(NXO_TEMPLATE_ROOT ${CMAKE_CURRENT_LIST_DIR}/../)
 
+set(NXO_TOOLS_DIR ${NXO_TEMPLATE_ROOT}/tools/ CACHE PATH "NXO Tools Path")
+
+if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nso)
+    message(FATAL_ERROR "Could not find elf2nso (${NXO_TOOLS_DIR})")
+endif()
+
+if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nro)
+    message(FATAL_ERROR "Could not find elf2nro (${NXO_TOOLS_DIR})")
+endif()
+
 add_subdirectory(${NXO_TEMPLATE_ROOT}/stub/)
 
 function(check_integer_string var)
