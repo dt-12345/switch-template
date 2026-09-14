@@ -2,22 +2,21 @@
 
 """
 nso2elf -o sdk.nss sdk
-readelf -s --wide sdk.nss > syms.txt
-make_stub.py -o stub.S syms.txt
+readelf -s --wide sdk.nss | make_stub.py -o stub.S
 """
 
 from io import StringIO
-from typing import NamedTuple
+from typing import NamedTuple, TextIO
 
 class Symbol(NamedTuple):
     name: str
     size: int
     weak: bool
 
-def parse(text: str) -> list[Symbol]:
+def parse(text: TextIO) -> list[Symbol]:
     syms: list[Symbol] = []
     started: bool = False
-    for row in text.splitlines():
+    for row in text.read().splitlines():
         if not started:
             if row == "   Num:    Value          Size Type    Bind   Vis      Ndx Name":
                 started = True
@@ -37,7 +36,7 @@ def create_stub_file(syms: list[Symbol]) -> str:
             out.write(f"    .weak {sym.name}\n")
         else:
             out.write(f"    .global {sym.name}\n")
-        out.write(f"    .size {sym.name}, {sym.size}\n")
+        # out.write(f"    .size {sym.name}, {sym.size}\n")
     return out.getvalue()
 
 if __name__ == "__main__":
@@ -51,13 +50,17 @@ if __name__ == "__main__":
 
     args, _ = parser.parse_known_args()
 
-    file: Path = Path(args.input_file_path)
+    infile: TextIO
+    if args.input_file_path:
+        file: Path = Path(args.input_file_path)
+        if not file.is_file():
+            sys.stderr.write(f"Failed to open file {args.input_file_path}\n")
+            sys.exit(1)
+        infile = open(file)
+    else:
+        infile = sys.stdin
 
-    if not file.is_file():
-        sys.stderr.write(f"Failed to open file {args.input_file_path}\n")
-        sys.exit(1)
-
-    syms: list[Symbol] = parse(file.read_text())
+    syms: list[Symbol] = parse(infile)
     stub: str = create_stub_file(syms)
 
     outfile: Path = Path(args.out)
