@@ -1,9 +1,6 @@
 set(CMAKE_ASM_CREATE_SHARED_LIBRARY
     "<CMAKE_ASM_COMPILER> <CMAKE_SHARED_LIBRARY_ASM_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>"
 )
-set(CMAKE_EXECUTABLE_SUFFIX ".nss")
-set(CMAKE_SHARED_LIBRARY_PREFIX "")
-set(CMAKE_SHARED_LIBRARY_SUFFIX ".nss")
 
 set(NXO_TEMPLATE_ROOT ${CMAKE_CURRENT_LIST_DIR}/../)
 
@@ -18,6 +15,7 @@ if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nro)
 endif()
 
 add_library(nnSdk SHARED stub/stub.S)
+set_target_properties(nnSdk PROPERTIES PREFIX "" SUFFIX ".nss")
 
 function(check_integer_string var)
     if(NOT var MATCHES "^[0-9]+$")
@@ -121,6 +119,9 @@ function(add_nxo target nxo_type)
             target_link_libraries(${target} PRIVATE nnSdk)
         endif()
     endif()
+
+    set_target_properties(${target} PROPERTIES PREFIX "")
+    set_target_properties(${target} PROPERTIES LINK_DEPENDS ${ARG_LINKER_SCRIPT})
     
     target_link_options(${target} PRIVATE -T ${ARG_LINKER_SCRIPT})
     target_link_options(${target} PRIVATE -Wl,--build-id=sha1)
@@ -133,8 +134,6 @@ function(add_nxo target nxo_type)
     endif()
 
     target_link_options(${target} PRIVATE -Wl,--hash-style=${ARG_HASH_STYLE})
-
-    set_target_properties(${target} PROPERTIES LINK_DEPENDS ${ARG_LINKER_SCRIPT})
 
     if(ARG_ENABLE_RELRO)
         target_compile_definitions(${target} PRIVATE ENABLE_RELRO)
@@ -170,10 +169,11 @@ function(add_nxo target nxo_type)
             ${ARG_SOURCES}
         )
 
+        set_target_properties(${target} PROPERTIES SUFFIX ".nss")
         set_source_files_properties(${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt.cpp PROPERTIES COMPILE_FLAGS -fno-exceptions)
 
         add_custom_command(TARGET ${target} POST_BUILD
-            COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nso -o ${CMAKE_CURRENT_BINARY_DIR}/${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}
+            COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nso -o ${CMAKE_CURRENT_BINARY_DIR}/${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}.nss
         )
     elseif(nxo_type STREQUAL "nro" OR nro_type STREQUAL "NRO")
         target_sources(${target} PRIVATE
@@ -186,15 +186,16 @@ function(add_nxo target nxo_type)
             ${ARG_SOURCES}
         )
 
+        set_target_properties(${target} PROPERTIES SUFFIX ".nrs")
         set_source_files_properties(${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_nro.cpp PROPERTIES COMPILE_FLAGS -fno-exceptions)
 
         if(ARG_HEADER_SECTION)
             add_custom_command(TARGET ${target} POST_BUILD
-                COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nro -o ${CMAKE_CURRENT_BINARY_DIR}/${target} --header ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}
+                COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nro -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.nso --header ${CMAKE_CURRENT_BINARY_DIR}/${target}.nrs
             )
         else()
             add_custom_command(TARGET ${target} POST_BUILD
-                COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nro -o ${CMAKE_CURRENT_BINARY_DIR}/${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}
+                COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nro -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.nro ${CMAKE_CURRENT_BINARY_DIR}/${target}.nrs
             )
         endif()
     else()
