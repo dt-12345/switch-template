@@ -6,7 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(cmake/nxo.cmake)
 
-set(NXO_TOOLS_DIR "tools/") # override tools directory if desired
+set(NXO_TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools/) # override tools directory if desired
 
 # add_nxo(<target> <nxo_type>
 #         [SDK_VERSION <target_sdk_version>]

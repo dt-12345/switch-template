@@ -6,14 +6,6 @@ set(NXO_TEMPLATE_ROOT ${CMAKE_CURRENT_LIST_DIR}/../)
 
 set(NXO_TOOLS_DIR ${NXO_TEMPLATE_ROOT}/tools/ CACHE PATH "NXO Tools Path")
 
-if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nso)
-    message(FATAL_ERROR "Could not find elf2nso (${NXO_TOOLS_DIR})")
-endif()
-
-if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nro)
-    message(FATAL_ERROR "Could not find elf2nro (${NXO_TOOLS_DIR})")
-endif()
-
 add_library(nnSdk SHARED stub/stub.S)
 set_target_properties(nnSdk PROPERTIES PREFIX "" SUFFIX ".nss")
 
@@ -45,6 +37,14 @@ function(parse_version_string version_string)
 endfunction(parse_version_string)
 
 function(add_nxo target nxo_type)
+    if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nso)
+        message(FATAL_ERROR "Could not find elf2nso (${NXO_TOOLS_DIR})")
+    endif()
+
+    if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nro)
+        message(FATAL_ERROR "Could not find elf2nro (${NXO_TOOLS_DIR})")
+    endif()
+
     set(OPTIONS SHARED_LIBRARY ENABLE_RELRO HEADER_SECTION NO_SDK NO_DEFAULT_INIT)
     set(ONE_VALUE_OPTIONS SDK_VERSION INIT FINI LINKER_SCRIPT HASH_STYLE DYNAMIC_LIST)
     set(MULTI_VALUE_OPTIONS SOURCES)
@@ -94,7 +94,6 @@ function(add_nxo target nxo_type)
         add_library(${target} SHARED)
         set(EXTRA_SOURCES "")
         target_link_options(${target} PRIVATE -shared)
-        target_link_options(${target} PRIVATE -Wl,--soname=${MODULE_NAME}${CMAKE_EXECUTABLE_SUFFIX})
     else()
         add_executable(${target})
         set(EXTRA_SOURCES
@@ -175,6 +174,10 @@ function(add_nxo target nxo_type)
         set_target_properties(${target} PROPERTIES SUFFIX ".nss")
         set_source_files_properties(${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt.cpp PROPERTIES COMPILE_FLAGS -fno-exceptions)
 
+        if (ARG_SHARED_LIBRARY)
+            target_link_options(${target} PRIVATE -Wl,--soname=${MODULE_NAME}.nss)
+        endif()
+
         add_custom_command(TARGET ${target} POST_BUILD
             COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nso -o ${CMAKE_CURRENT_BINARY_DIR}/${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}.nss
         )
@@ -191,6 +194,10 @@ function(add_nxo target nxo_type)
 
         set_target_properties(${target} PROPERTIES SUFFIX ".nrs")
         set_source_files_properties(${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_nro.cpp PROPERTIES COMPILE_FLAGS -fno-exceptions)
+
+        if (ARG_SHARED_LIBRARY)
+            target_link_options(${target} PRIVATE -Wl,--soname=${MODULE_NAME}.nrs)
+        endif()
 
         if(ARG_HEADER_SECTION)
             add_custom_command(TARGET ${target} POST_BUILD
