@@ -11,7 +11,7 @@ static void Print(const char* s)
     nn::diag::detail::PrintDebugString(s, len);
 }
 
-extern "C" void nnMain()
+__attribute__((visibility("default"))) extern "C" void Greet()
 {
     Print("Hello, World!\n");
 }

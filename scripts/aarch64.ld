@@ -14,6 +14,7 @@ SECTIONS
 {
   EX : {
     PROVIDE_HIDDEN(__EX_start = .);
+    KEEP(*(__nnDetailNintendoSdkNsoFileRefer))
     KEEP(*(.rocrt.init .rocrt_nro.init))
     . = ALIGN(0x10);
     *(.text .text.*)

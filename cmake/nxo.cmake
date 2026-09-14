@@ -1,3 +1,6 @@
+set(CMAKE_ASM_CREATE_SHARED_LIBRARY
+    "<CMAKE_ASM_COMPILER> <CMAKE_SHARED_LIBRARY_ASM_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>"
+)
 set(CMAKE_EXECUTABLE_SUFFIX ".nss")
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 set(CMAKE_SHARED_LIBRARY_SUFFIX ".nss")
@@ -14,7 +17,7 @@ if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nro)
     message(FATAL_ERROR "Could not find elf2nro (${NXO_TOOLS_DIR})")
 endif()
 
-add_subdirectory(${NXO_TEMPLATE_ROOT}/stub/)
+add_library(nnSdk SHARED stub/stub.S)
 
 function(check_integer_string var)
     if(NOT var MATCHES "^[0-9]+$")
@@ -43,11 +46,12 @@ function(parse_version_string version_string)
     set(version_micro ${version_micro} PARENT_SCOPE)
 endfunction(parse_version_string)
 
-function(build_nxo target nxo_type)
-    set(OPTIONS SHARED_LIBRARY ENABLE_RELRO HEADER_SECTION)
-    set(ONE_VALUE_OPTIONS SDK_VERSION INIT FINI LINKER_SCRIPT)
+function(add_nxo target nxo_type)
+    set(OPTIONS SHARED_LIBRARY ENABLE_RELRO HEADER_SECTION NO_SDK NO_DEFAULT_INIT)
+    set(ONE_VALUE_OPTIONS SDK_VERSION INIT FINI LINKER_SCRIPT HASH_STYLE DYNAMIC_LIST)
+    set(MULTI_VALUE_OPTIONS SOURCES)
     cmake_parse_arguments(ARG
-        "${OPTIONS}" "${ONE_VALUE_OPTIONS}" ""
+        "${OPTIONS}" "${ONE_VALUE_OPTIONS}" "${MULTI_VALUE_OPTIONS}"
         ${ARGN}
     )
 
@@ -56,10 +60,6 @@ function(build_nxo target nxo_type)
     endif()
 
     parse_version_string(${ARG_SDK_VERSION})
-
-    if(version_major LESS 17 AND ARG_ENABLE_RELRO)
-        message(WARNING "ENABLE_RELRO is not supported on ${ARG_SDK_VERSION}")
-    endif()
 
     if(NOT DEFINED ARG_INIT)
         set(ARG_INIT _init)
@@ -73,37 +73,68 @@ function(build_nxo target nxo_type)
         set(ARG_LINKER_SCRIPT ${NXO_TEMPLATE_ROOT}/scripts/aarch64.ld)
     endif()
 
+    if(NOT DEFINED ARG_HASH_STYLE)
+        set(ARG_HASH_STYLE sysv)
+    endif()
+
+    if(version_major LESS 17)
+        if(ARG_ENABLE_RELRO)
+            message(WARNING "ENABLE_RELRO is not supported on ${ARG_SDK_VERSION}")
+        endif()
+
+        if(ARG_HASH_STYLE STREQUAL "gnu")
+            message(WARNING "GNU Hash is not supported on ${ARG_SDK_VERSION}")
+        endif()
+    endif()
+
     set(MODULE_NAME ${target})
     string(LENGTH ${MODULE_NAME} MODULE_NAME_LENGTH)
 
-    configure_file(${NXO_TEMPLATE_ROOT}/template/rocrt_DebugLink.S.in template/rocrt_DebugLink.S @ONLY)
-
-    target_sources(${target} PRIVATE
-        ${CMAKE_BINARY_DIR}/template/rocrt_DebugLink.S
-        ${NXO_TEMPLATE_ROOT}/template/rocrt_Align.S
-        ${NXO_TEMPLATE_ROOT}/template/rocrt_LinkerSymbolGetter.cpp
-    )
-
-    target_include_directories(${target} PRIVATE ${NXO_TEMPLATE_ROOT}/template/NX-NXFP2-a64-cfi)
-
-    target_link_options(${target} PRIVATE -T${ARG_LINKER_SCRIPT})
-    target_link_options(${target} PRIVATE -Wl,--build-id=sha1)
-    target_link_options(${target} PRIVATE -Wl,-init=${ARG_INIT},-fini=${ARG_FINI})
-
-    set_target_properties(${target} PROPERTIES LINK_DEPENDS ${ARG_LINKER_SCRIPT})
+    configure_file(${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_DebugLink.S.in template/rocrt/rocrt_DebugLink.S @ONLY)
 
     if(ARG_SHARED_LIBRARY)
+        add_library(${target} SHARED)
+        set(EXTRA_SOURCES "")
         target_link_options(${target} PRIVATE -shared)
+        target_link_options(${target} PRIVATE -Wl,--soname=${MODULE_NAME}${CMAKE_EXECUTABLE_SUFFIX})
     else()
-        target_sources(${target} PRIVATE ${NXO_TEMPLATE_ROOT}/template/MainRuntimeObject.cpp)
+        add_executable(${target})
+        set(EXTRA_SOURCES
+            ${NXO_TEMPLATE_ROOT}/template/MainRuntime/MainRuntimeObject.cpp
+            ${NXO_TEMPLATE_ROOT}/template/MainRuntime/nnApplication.cpp
+        )
+
+        if(NOT NO_DEFAULT_INIT)
+            list(APPEND EXTRA_SOURCES
+                ${NXO_TEMPLATE_ROOT}/template/init/init_Malloc.cpp
+                ${NXO_TEMPLATE_ROOT}/template/init/init_Startup.cpp
+                ${NXO_TEMPLATE_ROOT}/template/init/detail/init_Startup-os.horizon.cpp
+            )
+
+            set_source_files_properties(${NXO_TEMPLATE_ROOT}/template/init/init_Startup.cpp PROPERTIES COMPILE_FLAGS -fno-stack-protector)
+        endif()
 
         # this is to fix any undefined symbols provided by the SDK
         # since this isn't a shared library, we can't just use -shared
         get_target_property(LINKED_LIBRARIES ${target} LINK_LIBRARIES)
-        if(NOT "nnSdk" IN_LIST LINKED_LIBRARIES)
+        if(NOT ARG_NO_SDK AND NOT "nnSdk" IN_LIST LINKED_LIBRARIES)
             target_link_libraries(${target} PRIVATE nnSdk)
         endif()
     endif()
+    
+    target_link_options(${target} PRIVATE -T ${ARG_LINKER_SCRIPT})
+    target_link_options(${target} PRIVATE -Wl,--build-id=sha1)
+    target_link_options(${target} PRIVATE -Wl,-init=${ARG_INIT},-fini=${ARG_FINI})
+
+    if (NOT DEFINED ARG_DYNAMIC_LIST)
+        target_link_options(${target} PRIVATE -Wl,--export-dynamic)
+    else()
+        target_link_options(${target} PRIVATE -Wl,--dynamic-list=${ARG_DYNAMIC_LIST})
+    endif()
+
+    target_link_options(${target} PRIVATE -Wl,--hash-style=${ARG_HASH_STYLE})
+
+    set_target_properties(${target} PROPERTIES LINK_DEPENDS ${ARG_LINKER_SCRIPT})
 
     if(ARG_ENABLE_RELRO)
         target_compile_definitions(${target} PRIVATE ENABLE_RELRO)
@@ -130,22 +161,32 @@ function(build_nxo target nxo_type)
 
     if(nxo_type STREQUAL "nso" OR nxo_type STREQUAL "NSO")
         target_sources(${target} PRIVATE
-            ${NXO_TEMPLATE_ROOT}/template/rocrt_Init.aarch64.S
-            ${NXO_TEMPLATE_ROOT}/template/rocrt.cpp
+            ${CMAKE_BINARY_DIR}/template/rocrt/rocrt_DebugLink.S
+            ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_Align.S
+            ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_Init.aarch64.S
+            ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt.cpp
+            ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_LinkerSymbolGetter.cpp
+            ${EXTRA_SOURCES}
+            ${ARG_SOURCES}
         )
 
-        set_source_files_properties(${NXO_TEMPLATE_ROOT}/template/rocrt.cpp PROPERTIES COMPILE_FLAGS -fno-exceptions)
+        set_source_files_properties(${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt.cpp PROPERTIES COMPILE_FLAGS -fno-exceptions)
 
         add_custom_command(TARGET ${target} POST_BUILD
             COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nso -o ${CMAKE_CURRENT_BINARY_DIR}/${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}
         )
     elseif(nxo_type STREQUAL "nro" OR nro_type STREQUAL "NRO")
         target_sources(${target} PRIVATE
-            ${NXO_TEMPLATE_ROOT}/template/rocrt_Init_nro.aarch64.S
-            ${NXO_TEMPLATE_ROOT}/template/rocrt_nro.cpp
+            ${CMAKE_BINARY_DIR}/template/rocrt/rocrt_DebugLink.S
+            ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_Align.S
+            ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_Init_nro.aarch64.S
+            ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_nro.cpp
+            ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_LinkerSymbolGetter.cpp
+            ${EXTRA_SOURCES}
+            ${ARG_SOURCES}
         )
 
-        set_source_files_properties(${NXO_TEMPLATE_ROOT}/template/rocrt_nro.cpp PROPERTIES COMPILE_FLAGS -fno-exceptions)
+        set_source_files_properties(${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_nro.cpp PROPERTIES COMPILE_FLAGS -fno-exceptions)
 
         if(ARG_HEADER_SECTION)
             add_custom_command(TARGET ${target} POST_BUILD
@@ -159,4 +200,4 @@ function(build_nxo target nxo_type)
     else()
         message(FATAL_ERROR "Expected either NSO or NRO: ${nxo_type}")
     endif()
-endfunction(build_nxo)
+endfunction(add_nxo)
