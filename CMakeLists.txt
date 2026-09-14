@@ -15,7 +15,7 @@ set(NXO_TOOLS_DIR "tools/") # override tools directory if desired
 #         [SDK_VERSION <target_sdk_version>]
 #         [SHARED_LIBRARY] [ENABLE_RELRO] [HEADER_SECTION] [NO_SDK] [NO_DEFAULT_INIT]
 #         [INIT <init_function>] [FINI <fini_function>]
-#         [LINKER_SCRIPT <script_path>]
+#         [LINKER_SCRIPT <script_path>] [HASH_STYLE <hash_style>] [DYNAMIC_LIST <dynamic_list>]
 #         SOURCES <sources>...
 # )
 
