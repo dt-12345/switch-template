@@ -35,7 +35,7 @@ namespace nn
         template <typename T, typename... Ts>
         [[gnu::always_inline]] void ConstructAt(TypedStorage<T>& storage, Ts&&... args)
         {
-            std::construct_at<T>(GetPointer(storage), std::forward<Ts>(args)...);
+            new (GetPointer(storage)) T(std::forward<Ts>(args)...);
         }
     }
 
