@@ -143,7 +143,7 @@ function(add_nxo target nxo_type)
     target_compile_definitions(${target} PRIVATE NN_ROCRT_MODULE_HEADER_SIGNATURE=0x30444f4d)
     if(version_major GREATER_EQUAL 7)
         target_compile_definitions(${target} PRIVATE NN_ROCRT_ROMODULE_SIZE=0xd0)
-    elseif(version_major GREATER_EQUAL 5 AND version_minor GREATER_EQUAL 1) # not sure what the actual minor version where this changed is
+    elseif(version_major GREATER 5 OR (version_major EQUAL 5 AND version_minor GREATER_EQUAL 1)) # not sure what the actual minor version where this changed is
         target_compile_definitions(${target} PRIVATE NN_ROCRT_ROMODULE_SIZE=0xc8)
     else()
         target_compile_definitions(${target} PRIVATE NN_ROCRT_ROMODULE_SIZE=0xb8)

@@ -37,6 +37,8 @@ add_nxo(<target> <nxo_type>
 - `DYNAMIC_LIST <dynamic_list>`: path to exported symbols list
 - `SOURCES <sources>...`: list of source files for the target
 
+If building a non-shared library (a.k.a the main application binary), users should provide an implementation of `extern "C" void nnMain()` which will serve as the entry point.
+
 ## Building
 
 Build the tools from https://github.com/dt-12345/nso-tools and copy elf2nso and elf2nro into `tools/`, then run the following:
