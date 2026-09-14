@@ -25,7 +25,7 @@ def parse(text: TextIO) -> list[Symbol]:
             if entries[6] == "UND" or entries[4] == "LOCAL":
                 continue
             syms.append(Symbol(entries[7], int(entries[2]), entries[4] == "WEAK"))
-    return syms
+    return sorted(syms, key=lambda s: s.name)
 
 def create_stub_file(syms: list[Symbol]) -> str:
     out: StringIO = StringIO()
