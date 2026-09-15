@@ -6,7 +6,7 @@ set(NXO_TEMPLATE_ROOT ${CMAKE_CURRENT_LIST_DIR}/../)
 
 set(NXO_TOOLS_DIR ${NXO_TEMPLATE_ROOT}/tools/ CACHE PATH "NXO Tools Path")
 
-add_library(nnSdk SHARED stub/stub.S)
+add_library(nnSdk SHARED ${NXO_TEMPLATE_ROOT}/stub/stub.S)
 set_target_properties(nnSdk PROPERTIES PREFIX "" SUFFIX ".nss")
 
 function(check_integer_string var)
