@@ -41,6 +41,20 @@ add_nxo(<target> <nxo_type>
 
 If building a non-shared library (a.k.a the main application binary), users should provide an implementation of `extern "C" void nnMain()` which will serve as the entry point.
 
+Program execution (assuming you're using the SDK) goes as follows (bold entries are controllable by the application):
+- _init_libc0()
+- nnosInitialize()
+- Enable user exception handler
+- _init_libc1()
+- nninitInitializeSdkModule()
+- **nninitStartup()**
+- _init_libc2()
+- **DT_INIT for all modules in reverse order** (sdk, subsdk9, subsdk8, ..., subsdk0, main, rtld)
+- **nnMain**
+- **DT_FINI for all modules in order** (rtld, main, subsdk0, subsdk1, ..., subsdk9, sdk)
+- nninitFinalizeSdkModule()
+- nnosQuickExit()
+
 ## Building
 
 Build the tools from https://github.com/dt-12345/nso-tools and copy elf2nso and elf2nro into `tools/`, then run the following:
