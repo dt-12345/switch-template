@@ -22,6 +22,8 @@ add_nxo(<target> <nxo_type>
 - `NO_SDK`: do not link against SDK stub library
 - `NO_DEFAULT_INIT`: do not use the default `nn::init` initialization code (only affects non-shared libraries)
   - If not using `nn::init` and linking against the SDK, users should provide implementations for the following functions:
+- `NO_DEFAULT_MALLOC`: do not use the default `nn::init` memory allocation code (only affects non-shared libraries)
+  - If not using `nn::init` and linking against the SDK, users should provide implementations for the following functions:
     - `nninitStartup`
     - `malloc`
     - `free`

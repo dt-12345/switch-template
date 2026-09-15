@@ -10,7 +10,7 @@ set(NXO_TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools/) # override tools directory if de
 
 # add_nxo(<target> <nxo_type>
 #         [SDK_VERSION <target_sdk_version>]
-#         [SHARED_LIBRARY] [ENABLE_RELRO] [HEADER_SECTION] [NO_SDK] [NO_DEFAULT_INIT]
+#         [SHARED_LIBRARY] [ENABLE_RELRO] [HEADER_SECTION] [NO_SDK] [NO_DEFAULT_INIT] [NO_DEFAULT_MALLOC]
 #         [INIT <init_function>] [FINI <fini_function>]
 #         [LINKER_SCRIPT <script_path>] [HASH_STYLE <hash_style>] [DYNAMIC_LIST <dynamic_list>]
 #         SOURCES <sources>...

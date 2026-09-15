@@ -45,7 +45,7 @@ function(add_nxo target nxo_type)
         message(FATAL_ERROR "Could not find elf2nro (${NXO_TOOLS_DIR})")
     endif()
 
-    set(OPTIONS SHARED_LIBRARY ENABLE_RELRO HEADER_SECTION NO_SDK NO_DEFAULT_INIT)
+    set(OPTIONS SHARED_LIBRARY ENABLE_RELRO HEADER_SECTION NO_SDK NO_DEFAULT_INIT NO_DEFAULT_MALLOC)
     set(ONE_VALUE_OPTIONS SDK_VERSION INIT FINI LINKER_SCRIPT HASH_STYLE DYNAMIC_LIST)
     set(MULTI_VALUE_OPTIONS SOURCES)
     cmake_parse_arguments(ARG
@@ -101,9 +101,14 @@ function(add_nxo target nxo_type)
             ${NXO_TEMPLATE_ROOT}/template/MainRuntime/nnApplication.cpp
         )
 
-        if(NOT NO_DEFAULT_INIT)
+        if(NOT NO_DEFAULT_MALLOC)
             list(APPEND EXTRA_SOURCES
                 ${NXO_TEMPLATE_ROOT}/template/init/init_Malloc.cpp
+            )
+        endif()
+
+        if(NOT NO_DEFAULT_INIT)
+            list(APPEND EXTRA_SOURCES
                 ${NXO_TEMPLATE_ROOT}/template/init/init_Startup.cpp
                 ${NXO_TEMPLATE_ROOT}/template/init/detail/init_Startup-os.horizon.cpp
             )
