@@ -129,7 +129,6 @@ function(add_nxo target nxo_type)
     set_target_properties(${target} PROPERTIES PREFIX "")
     set_target_properties(${target} PROPERTIES LINK_DEPENDS ${ARG_LINKER_SCRIPT})
     
-    target_compile_options(${target} PRIVATE -fPIC)
     target_link_options(${target} PRIVATE -T ${ARG_LINKER_SCRIPT})
     target_link_options(${target} PRIVATE -Wl,--build-id=sha1)
     target_link_options(${target} PRIVATE -Wl,-init=${ARG_INIT},-fini=${ARG_FINI})
