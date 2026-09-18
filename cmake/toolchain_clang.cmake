@@ -1,3 +1,5 @@
+# Example toolchain file for building with devkitpro clang
+
 set(NX64_TRIPLE aarch64-linux-elf)
 
 set(CMAKE_SYSTEM_NAME Linux)
