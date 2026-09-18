@@ -4,15 +4,6 @@ if (NOT DEFINED ENV{DEVKITPRO})
     message(FATAL_ERROR "devkitpro is not in env")
 endif()
 
-file(GLOB DKP_CXX_VERSIONS LIST_DIRECTORIES true $ENV{DEVKITPRO}/devkitA64/aarch64-elf/include/c++/ "*")
-list(LENGTH DKP_CXX_VERSIONS DKP_CXX_VERSION_COUNT)
-
-if(DKP_CXX_VERSION_COUNT LESS 1)
-    message(FATAL_ERROR "Could not determine devkitpro gcc version")
-endif()
-
-list(GET DKP_CXX_VERSIONS 0 DKP_CXX_VERSION)
-
 set(NX64_TRIPLE aarch64-linux-elf)
 
 set(CMAKE_SYSTEM_NAME Linux)
