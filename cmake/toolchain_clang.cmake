@@ -1,4 +1,4 @@
-# Example toolchain file for building with devkitpro clang
+# Example toolchain file for building with clang
 
 set(NX64_TRIPLE aarch64-linux-elf)
 
