@@ -59,6 +59,11 @@ Program execution (assuming you're using the SDK) goes as follows (bold entries 
 
 Build the tools from https://github.com/dt-12345/nso-tools and copy elf2nso and elf2nro into `tools/`, then run the following:
 ```sh
-cmake -B build --toolchain=cmake/toolchain.cmake
+# To build with clang + lld
+cmake -B build --toolchain=cmake/toolchain_clang.cmake
+cmake --build build
+
+# To build with devkitpro
+cmake -B build --toolchain=cmake/toolchain_dkp.cmake
 cmake --build build
 ```
