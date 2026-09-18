@@ -6,7 +6,6 @@ set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
 set(CMAKE_SYSROOT ${PROJECT_SOURCE_DIR}/sysroot/musl/)
 set(CMAKE_C_COMPILER clang)
-set(CMAKE_C_FLAGS -stdlib=libc++)
 set(CMAKE_C_COMPILER_TARGET ${NX64_TRIPLE})
 set(CMAKE_CXX_COMPILER clang++)
 set(CMAKE_CXX_FLAGS -stdlib=libc++)

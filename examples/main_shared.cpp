@@ -1,6 +1,6 @@
 #include <cstdio>
 
-__attribute__((visibility("default"))) extern "C" void Greet()
+extern "C" __attribute__((visibility("default"))) void Greet()
 {
     printf("Hello, World!\n");
 }

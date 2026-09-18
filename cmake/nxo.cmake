@@ -84,7 +84,7 @@ function(add_nxo target nxo_type)
     set(MODULE_NAME ${target})
     string(LENGTH ${MODULE_NAME} MODULE_NAME_LENGTH)
 
-    configure_file(${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_DebugLink.S.in template/rocrt/rocrt_DebugLink.S @ONLY)
+    configure_file(${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_DebugLink.S.in template/rocrt/rocrt_DebugLink-${target}.S @ONLY)
 
     if(ARG_SHARED_LIBRARY)
         add_library(${target} SHARED)
@@ -95,6 +95,7 @@ function(add_nxo target nxo_type)
         set(EXTRA_SOURCES
             ${NXO_TEMPLATE_ROOT}/template/MainRuntime/MainRuntimeObject.cpp
             ${NXO_TEMPLATE_ROOT}/template/MainRuntime/nnApplication.cpp
+            ${NXO_TEMPLATE_ROOT}/template/MainRuntime/nnApplication.S
         )
 
         if(NOT NO_DEFAULT_MALLOC)
@@ -162,10 +163,11 @@ function(add_nxo target nxo_type)
 
     if(nxo_type STREQUAL "nso" OR nxo_type STREQUAL "NSO")
         target_sources(${target} PRIVATE
-            ${CMAKE_BINARY_DIR}/template/rocrt/rocrt_DebugLink.S
+            ${CMAKE_BINARY_DIR}/template/rocrt/rocrt_DebugLink-${target}.S
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_Align.S
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_Init.aarch64.S
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt.cpp
+            ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_CallFunction.S
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_LinkerSymbolGetter.cpp
             ${EXTRA_SOURCES}
             ${ARG_SOURCES}
@@ -187,6 +189,7 @@ function(add_nxo target nxo_type)
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_Align.S
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_Init_nro.aarch64.S
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_nro.cpp
+            ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_CallFunction.S
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_LinkerSymbolGetter.cpp
             ${EXTRA_SOURCES}
             ${ARG_SOURCES}

@@ -100,6 +100,7 @@ namespace {
     using InitFiniPointerT = void(*INIT_FINI_PTRAUTH_QUALIFIER)();
 
 #if defined(__aarch64__) && defined(__LP64__) && !(__has_feature(ptrauth_calls) && __has_feature(ptrauth_init_fini))
+#if defined(__clang__)
     template<InitFiniPointerT pBegin[], InitFiniPointerT pEnd[]>
     [[gnu::naked]] void CallFunction(InitFiniPointerT* ppFunc) noexcept
     {
@@ -119,6 +120,10 @@ namespace {
             "1:  udf #0x8003;"::
             [BeginSym]"S"(pBegin), [EndSym]"S"(pEnd));
         }
+#else
+    extern "C" void __CallInit(InitFiniPointerT*) noexcept;
+    extern "C" void __CallFini(InitFiniPointerT*) noexcept;
+#endif
 #else
     template<InitFiniPointerT pBegin[], InitFiniPointerT pEnd[]>
     [[gnu::always_inline]] void CallFunction(InitFiniPointerT* ppFunc) noexcept
@@ -218,7 +223,11 @@ extern "C"
 #endif
         for (InitFiniPointerT* f = __init_array_start; f < __init_array_end; ++f)
         {
+#if defined(__clang__)
             CallFunction<__init_array_start, __init_array_end>(f);
+#else
+            __CallInit(f);
+#endif
         }
     }
 
@@ -228,7 +237,11 @@ extern "C"
 
         for (InitFiniPointerT* f = __fini_array_end; f > __fini_array_start; --f)
         {
+#if defined(__clang__)
             CallFunction<__fini_array_start, __fini_array_end>(f - 1);
+#else
+            __CallFini(f - 1);
+#endif
         }
 
         __nnmusl_fini_dso( __EX_start, __EX_end,

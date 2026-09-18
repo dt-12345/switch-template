@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <memory>
 #include <new>
 #if __cplusplus < 202302
@@ -21,19 +22,19 @@ namespace nn
         };
 
         template <typename T>
-        [[gnu::always_inline]] T& Get(TypedStorage<T>& storage)
+        [[gnu::always_inline]] inline T& Get(TypedStorage<T>& storage)
         {
             return *std::launder(reinterpret_cast<T*>(std::addressof(storage)));
         }
 
         template <typename T>
-        [[gnu::always_inline]] T* GetPointer(TypedStorage<T>& storage)
+        [[gnu::always_inline]] inline T* GetPointer(TypedStorage<T>& storage)
         {
             return std::launder(reinterpret_cast<T*>(std::addressof(storage)));
         }
 
         template <typename T, typename... Ts>
-        [[gnu::always_inline]] void ConstructAt(TypedStorage<T>& storage, Ts&&... args)
+        [[gnu::always_inline]] inline void ConstructAt(TypedStorage<T>& storage, Ts&&... args)
         {
             new (GetPointer(storage)) T(std::forward<Ts>(args)...);
         }
@@ -61,18 +62,18 @@ namespace nn
         class StandardAllocator
         {
         public:
-            StandardAllocator();
+            StandardAllocator() noexcept;
 
-            void Initialize(void* addr, size_t size, bool isCacheEnable);
+            void Initialize(void* addr, size_t size, bool isCacheEnable) noexcept;
             
-            void* Allocate(size_t size, size_t align);
-            void* Allocate(size_t size);
+            void* Allocate(size_t size, size_t align) noexcept;
+            void* Allocate(size_t size) noexcept;
             
-            void Free(void* ptr);
+            void Free(void* ptr) noexcept;
 
-            void* Reallocate(void* ptr, size_t newSize);
+            void* Reallocate(void* ptr, size_t newSize) noexcept;
 
-            size_t GetSizeOf(const void* ptr) const;
+            size_t GetSizeOf(const void* ptr) const noexcept;
 
         private:
             bool m_Initialized;
@@ -123,6 +124,8 @@ namespace nn
 
 extern "C"
 {
+    int* __errno_location();
+
     __attribute__((visibility("default"))) void* malloc(size_t size);
     __attribute__((visibility("default"))) void* malloc(size_t size)
     {

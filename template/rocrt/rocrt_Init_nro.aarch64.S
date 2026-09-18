@@ -64,16 +64,3 @@ __rocrt_ver:
     .balign  NN_ROCRT_ROMODULE_ALIGN
 _ZN2nn5rocrt10g_RoModuleE:
     .skip   NN_ROCRT_ROMODULE_SIZE
-
-    .addrsig
-    .addrsig_sym __rocrt_init // アドレスが固定のため
-    .addrsig_sym __rocrt
-#if NN_SDK_VERSION_MAJOR >= 17
-    .addrsig_sym __rocrt_ver
-#endif
-    .addrsig_sym _DYNAMIC
-    .addrsig_sym __bss_start
-    .addrsig_sym __bss_end
-    .addrsig_sym __eh_frame_hdr_start
-    .addrsig_sym __eh_frame_hdr_end
-    .addrsig_sym _ZN2nn5rocrt10g_RoModuleE
