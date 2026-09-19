@@ -187,7 +187,7 @@ function(add_nxo target nxo_type)
         endif()
 
         add_custom_command(TARGET ${target} POST_BUILD
-            COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nso${NXO_HOST_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}.nss
+            COMMAND ${NXO_TOOLS_DIR}/elf2nso${NXO_HOST_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}.nss
         )
     elseif(nxo_type STREQUAL "nro" OR nro_type STREQUAL "NRO")
         target_sources(${target} PRIVATE
@@ -210,11 +210,11 @@ function(add_nxo target nxo_type)
 
         if(ARG_HEADER_SECTION)
             add_custom_command(TARGET ${target} POST_BUILD
-                COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nro${NXO_HOST_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.nso --header ${CMAKE_CURRENT_BINARY_DIR}/${target}.nrs
+                COMMAND ${NXO_TOOLS_DIR}/elf2nro${NXO_HOST_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.nso --header ${CMAKE_CURRENT_BINARY_DIR}/${target}.nrs
             )
         else()
             add_custom_command(TARGET ${target} POST_BUILD
-                COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nro${NXO_HOST_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.nro ${CMAKE_CURRENT_BINARY_DIR}/${target}.nrs
+                COMMAND ${NXO_TOOLS_DIR}/elf2nro${NXO_HOST_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.nro ${CMAKE_CURRENT_BINARY_DIR}/${target}.nrs
             )
         endif()
     else()
