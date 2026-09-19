@@ -27,7 +27,7 @@ __CallInit:
     tst  x0, #0x7
     b.ne 1f
     br   x16
-    1:  udf #0x8003
+1:  udf #0x8003
     .cfi_endproc
 
 __CallFini:
@@ -44,6 +44,6 @@ __CallFini:
     tst  x0, #0x7
     b.ne 1f
     br   x16
-    1:  udf #0x8003
+1:  udf #0x8003
     .cfi_endproc
 #endif
