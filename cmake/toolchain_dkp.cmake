@@ -26,7 +26,6 @@ set(CMAKE_ASM_COMPILER_TARGET ${NX64_TRIPLE})
 
 add_compile_options(-mcpu=cortex-a57+fp+simd+crypto+crc)
 add_compile_options(-fPIC)
-add_link_options(-nodefaultlibs)
 add_link_options(-nostartfiles)
 
 set(CMAKE_ASM_CREATE_SHARED_LIBRARY
