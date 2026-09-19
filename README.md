@@ -1,6 +1,6 @@
 # switch-template
 
-This repository contains a template for building NSOs or NROs for game applications. It uses [Nintendo-OSS](https://support.nintendo.com/jp/oss/index.html) (GPL v2). For the time being, bundling `rtld` is not supported.
+This repository contains a template for building NSOs or NROs for game applications. It uses [Nintendo-OSS](https://support.nintendo.com/jp/oss/index.html) (GPL v2). For the time being, bundling `rtld` is not supported. Musl is used in the example clang toolchain (MIT), but using a proper AArch64 toolchain for clang is recommended.
 
 See `CMakeLists.txt` for an example.
 
