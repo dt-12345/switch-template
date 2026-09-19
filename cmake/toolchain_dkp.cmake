@@ -4,7 +4,7 @@ if(NOT DEFINED ENV{DEVKITPRO})
     message(FATAL_ERROR "devkitpro is not in env")
 endif()
 
-set(NX64_TRIPLE aarch64-linux-elf)
+set(NX64_TRIPLE aarch64-none-elf)
 
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_VERSION 1)
