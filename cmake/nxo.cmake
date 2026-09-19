@@ -5,6 +5,12 @@ set(NXO_TOOLS_DIR ${NXO_TEMPLATE_ROOT}/tools/ CACHE PATH "NXO Tools Path")
 add_library(nnSdk SHARED ${NXO_TEMPLATE_ROOT}/stub/stub.S)
 set_target_properties(nnSdk PROPERTIES PREFIX "" SUFFIX ".nss")
 
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    set(NXO_HOST_SUFFIX ".exe")
+else()
+    set(NXO_HOST_SUFFIX "")
+endif()
+
 function(check_integer_string var)
     if(NOT var MATCHES "^[0-9]+$")
         message(FATAL_ERROR "${var} is not an integer")
@@ -33,11 +39,11 @@ function(parse_version_string version_string)
 endfunction(parse_version_string)
 
 function(add_nxo target nxo_type)
-    if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nso)
+    if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nso${NXO_HOST_SUFFIX})
         message(FATAL_ERROR "Could not find elf2nso (${NXO_TOOLS_DIR})")
     endif()
 
-    if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nro)
+    if (NOT EXISTS ${NXO_TOOLS_DIR}/elf2nro${NXO_HOST_SUFFIX})
         message(FATAL_ERROR "Could not find elf2nro (${NXO_TOOLS_DIR})")
     endif()
 
@@ -181,11 +187,11 @@ function(add_nxo target nxo_type)
         endif()
 
         add_custom_command(TARGET ${target} POST_BUILD
-            COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nso -o ${CMAKE_CURRENT_BINARY_DIR}/${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}.nss
+            COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nso${NXO_HOST_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${target} ${CMAKE_CURRENT_BINARY_DIR}/${target}.nss
         )
     elseif(nxo_type STREQUAL "nro" OR nro_type STREQUAL "NRO")
         target_sources(${target} PRIVATE
-            ${CMAKE_BINARY_DIR}/template/rocrt/rocrt_DebugLink.S
+            ${CMAKE_BINARY_DIR}/template/rocrt/rocrt_DebugLink-${target}.S
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_Align.S
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_Init_nro.aarch64.S
             ${NXO_TEMPLATE_ROOT}/template/rocrt/rocrt_nro.cpp
@@ -204,11 +210,11 @@ function(add_nxo target nxo_type)
 
         if(ARG_HEADER_SECTION)
             add_custom_command(TARGET ${target} POST_BUILD
-                COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nro -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.nso --header ${CMAKE_CURRENT_BINARY_DIR}/${target}.nrs
+                COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nro${NXO_HOST_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.nso --header ${CMAKE_CURRENT_BINARY_DIR}/${target}.nrs
             )
         else()
             add_custom_command(TARGET ${target} POST_BUILD
-                COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nro -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.nro ${CMAKE_CURRENT_BINARY_DIR}/${target}.nrs
+                COMMAND ${NXO_TEMPLATE_ROOT}/tools/elf2nro${NXO_HOST_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${target}.nro ${CMAKE_CURRENT_BINARY_DIR}/${target}.nrs
             )
         endif()
     else()
