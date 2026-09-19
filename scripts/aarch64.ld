@@ -82,6 +82,12 @@ SECTIONS
 
   PROVIDE_HIDDEN(__relro_start = .);
 
+  .preinit_array ALIGN(8) : {
+    PROVIDE_HIDDEN (__preinit_array_start = .);
+    KEEP (*(.preinit_array))
+    PROVIDE_HIDDEN (__preinit_array_end = .);
+  } :data
+
   .init_array ALIGN(8) : {
     PROVIDE_HIDDEN(__init_array_start = .);
     KEEP (*(SORT_BY_INIT_PRIORITY(.init_array.*)))
