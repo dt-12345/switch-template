@@ -193,8 +193,12 @@ extern "C"
     int __aeabi_atexit(void* object, void (*destroyer)(void*), void* dso_handle) __attribute__ ((visibility ("hidden")));
     int __cxa_atexit(void (*destroyer)(void*), void* pObject, void* dso_handle) __attribute__ ((visibility ("hidden")));
     int __cxa_finalize(void* pDsoHandle) __attribute__ ((visibility ("hidden")));
+#if NXO_USE_DEFAULT_INIT
     void _init() __attribute__ ((visibility ("protected")));
+#endif
+#if NXO_USE_DEFAULT_FINI
     void _fini() __attribute__ ((visibility ("protected")));
+#endif
     static volatile int nnmuslTlsInitializationPhase __attribute__((section(".data._ZL28nnmuslTlsInitializationPhase"))) = 0;
 
     __attribute__((visibility("hidden")))       void __nndetailRocrtAfterRelocations();

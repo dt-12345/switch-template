@@ -61,12 +61,18 @@ function(add_nxo target nxo_type)
 
     parse_version_string(${ARG_SDK_VERSION})
 
-    if(NOT DEFINED ARG_INIT)
+    if(NOT DEFINED ARG_INIT OR ARG_INIT STREQUAL "_init")
         set(ARG_INIT _init)
+        set(NXO_USE_DEFAULT_INIT 1)
+    else()
+        set(NXO_USE_DEFAULT_INIT 0)
     endif()
 
-    if(NOT DEFINED ARG_FINI)
+    if(NOT DEFINED ARG_FINI OR ARG_FINI STREQUAL "_fini")
         set(ARG_FINI _fini)
+        set(NXO_USE_DEFAULT_FINI 1)
+    else()
+        set(NXO_USE_DEFAULT_FINI 0)
     endif()
 
     if(NOT DEFINED ARG_LINKER_SCRIPT)
@@ -166,6 +172,8 @@ function(add_nxo target nxo_type)
     target_compile_definitions(${target} PRIVATE NN_SDK_VERSION_MAJOR=${version_major})
     target_compile_definitions(${target} PRIVATE NN_SDK_VERSION_MINOR=${version_minor})
     target_compile_definitions(${target} PRIVATE NN_SDK_VERSION_MICRO=${version_micro})
+    target_compile_definitions(${target} PRIVATE NXO_USE_DEFAULT_INIT=${NXO_USE_DEFAULT_INIT})
+    target_compile_definitions(${target} PRIVATE NXO_USE_DEFAULT_FINI=${NXO_USE_DEFAULT_FINI})
 
     if(nxo_type STREQUAL "nso" OR nxo_type STREQUAL "NSO")
         target_sources(${target} PRIVATE
