@@ -20,6 +20,9 @@ add_compile_options(-fPIC)
 add_link_options(-fuse-ld=lld)
 add_link_options(-nodefaultlibs)
 add_link_options(-nostartfiles)
+# if you have a toolchain with aarch64 compiler-rt, add it here
+# add_link_options(-L${TOOLCHAIN_PATH}/lib/clang-runtimes/aarch64-none-elf/aarch64a/lib/)
+# add_link_options(-lclang_rt.builtins)
 
 set(CMAKE_ASM_CREATE_SHARED_LIBRARY
     "<CMAKE_ASM_COMPILER> <CMAKE_SHARED_LIBRARY_ASM_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>"
