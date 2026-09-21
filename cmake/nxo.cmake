@@ -2,8 +2,8 @@ set(NXO_TEMPLATE_ROOT ${CMAKE_CURRENT_LIST_DIR}/../)
 
 set(NXO_TOOLS_DIR ${NXO_TEMPLATE_ROOT}/tools/ CACHE PATH "NXO Tools Path")
 
-add_library(nnSdk SHARED ${NXO_TEMPLATE_ROOT}/stub/stub.S)
-set_target_properties(nnSdk PROPERTIES PREFIX "" SUFFIX ".nss")
+add_library(NXO_NNSDK_STUB SHARED ${NXO_TEMPLATE_ROOT}/stub/stub.S)
+set_target_properties(NXO_NNSDK_STUB PROPERTIES PREFIX "" SUFFIX ".nss" OUTPUT_NAME "nnSdk")
 
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     set(NXO_HOST_SUFFIX ".exe")
@@ -128,8 +128,8 @@ function(add_nxo target nxo_type)
         # this is to fix any undefined symbols provided by the SDK
         # since this isn't a shared library, we can't just use -shared
         get_target_property(LINKED_LIBRARIES ${target} LINK_LIBRARIES)
-        if(NOT ARG_NO_SDK AND NOT "nnSdk" IN_LIST LINKED_LIBRARIES)
-            target_link_libraries(${target} PRIVATE nnSdk)
+        if(NOT ARG_NO_SDK AND NOT "NXO_NNSDK_STUB" IN_LIST LINKED_LIBRARIES)
+            target_link_libraries(${target} PRIVATE NXO_NNSDK_STUB)
         endif()
 
         target_link_options(${target} PRIVATE -Wl,-pie)
