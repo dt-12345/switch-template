@@ -107,7 +107,6 @@ function(add_nxo target nxo_type)
         set(EXTRA_SOURCES
             ${NXO_TEMPLATE_ROOT}/template/MainRuntime/MainRuntimeObject.cpp
             ${NXO_TEMPLATE_ROOT}/template/MainRuntime/nnApplication.cpp
-            ${NXO_TEMPLATE_ROOT}/template/MainRuntime/nnApplication.S
         )
 
         if(NOT NO_DEFAULT_MALLOC)
