@@ -106,8 +106,17 @@ function(add_nxo target nxo_type)
         add_executable(${target})
         set(EXTRA_SOURCES
             ${NXO_TEMPLATE_ROOT}/template/MainRuntime/MainRuntimeObject.cpp
-            ${NXO_TEMPLATE_ROOT}/template/MainRuntime/nnApplication.cpp
         )
+
+        # this is to fix any undefined symbols provided by the SDK
+        # since this isn't a shared library, we can't just use -shared
+        get_target_property(LINKED_LIBRARIES ${target} LINK_LIBRARIES)
+        if(NOT ARG_NO_SDK AND NOT "NXO_NNSDK_STUB" IN_LIST LINKED_LIBRARIES)
+            target_link_libraries(${target} PRIVATE NXO_NNSDK_STUB)
+            list(APPEND EXTRA_SOURCES
+                ${NXO_TEMPLATE_ROOT}/template/MainRuntime/nnApplication.cpp # newer NSOs seem to not even bother with this, but the SDK still retains the function so whatever
+            )
+        endif()
 
         if(NOT NO_DEFAULT_MALLOC)
             list(APPEND EXTRA_SOURCES
@@ -122,13 +131,6 @@ function(add_nxo target nxo_type)
             )
 
             set_source_files_properties(${NXO_TEMPLATE_ROOT}/template/init/init_Startup.cpp PROPERTIES COMPILE_FLAGS -fno-stack-protector)
-        endif()
-
-        # this is to fix any undefined symbols provided by the SDK
-        # since this isn't a shared library, we can't just use -shared
-        get_target_property(LINKED_LIBRARIES ${target} LINK_LIBRARIES)
-        if(NOT ARG_NO_SDK AND NOT "NXO_NNSDK_STUB" IN_LIST LINKED_LIBRARIES)
-            target_link_libraries(${target} PRIVATE NXO_NNSDK_STUB)
         endif()
 
         target_link_options(${target} PRIVATE -Wl,-pie)
